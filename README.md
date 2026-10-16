@@ -54,6 +54,8 @@ Flask-JWT-Extended>=4.7,<5
 
 ### 2. Configure your Flask API
 
+The `/protected` route below is only an example of a protected route in another Flask API. It is not implemented by this authentication service. Create the route in your own API and add `@jwt_filter` to the endpoints that need authentication.
+
 ```python
 import os
 
