@@ -1,0 +1,72 @@
+:root {
+    color-scheme: light;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: #f2f4f7;
+    margin: 0;
+}
+
+.site-header {
+    display: flex;
+    justify-content: flex-end;
+    padding: 1rem 2rem;
+}
+
+.card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px #0001;
+    margin: 4rem auto;
+    max-width: 28rem;
+    padding: 2rem;
+}
+
+label {
+    display: block;
+    margin: 1rem 0;
+}
+
+input {
+    box-sizing: border-box;
+    display: block;
+    margin-top: .35rem;
+    padding: .65rem;
+    width: 100%;
+}
+
+.password-toggle {
+    align-items: center;
+    color: #52606d;
+    display: flex;
+    font-size: .9rem;
+    gap: .5rem;
+    margin: -.5rem 0 1rem;
+}
+
+.password-toggle input {
+    accent-color: #1769aa;
+    display: inline-block;
+    margin: 0;
+    width: auto;
+}
+
+button, .button {
+    background: #1769aa;
+    border: 0;
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+    display: inline-block;
+    padding: .7rem 1rem;
+    text-decoration: none;
+}
+
+.secondary {
+    background: #52606d;
+}
+
+#message {
+    min-height: 1.2rem;
+}

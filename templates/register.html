@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Register{% endblock %}
+
+{% block content %}
+<h1>Register</h1>
+<form id="register-form">
+    <label>First name <input name="first_name" required></label>
+    <label>Last name <input name="last_name" required></label>
+    <label>Email <input name="email" type="email" required></label>
+    <label>Password <input id="register-password" name="password" type="password" minlength="8" required></label>
+    <label class="password-toggle">
+        <input id="register-show-password" type="checkbox">
+        <span>Show password</span>
+    </label>
+    <button type="submit">Register</button>
+</form>
+<p id="message"></p>
+<a href="{{ url_for('login') }}">Already registered? Login</a>
+<script>
+document.getElementById("register-form").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const response = await fetch("/register", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(Object.fromEntries(new FormData(event.target)))
+    });
+    const result = await response.json();
+    if (response.ok) {
+        window.location.href = "/";
+    } else {
+        document.getElementById("message").textContent = result.error;
+    }
+});
+</script>
+<script>
+document.getElementById("register-show-password").addEventListener("change", (event) => {
+    document.getElementById("register-password").type =
+        event.target.checked ? "text" : "password";
+});
+</script>
+{% endblock %}

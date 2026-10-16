@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<h1>Login</h1>
+<form id="login-form">
+    <label>Email <input name="username" type="email" required></label>
+    <label>Password <input id="login-password" name="password" type="password" required></label>
+    <label class="password-toggle">
+        <input id="login-show-password" type="checkbox">
+        <span>Show password</span>
+    </label>
+    <button type="submit">Login</button>
+</form>
+<p id="message"></p>
+<a href="{{ url_for('register') }}">Need an account? Register</a>
+<script>
+document.getElementById("login-form").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const response = await fetch("/login", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(Object.fromEntries(new FormData(event.target)))
+    });
+    const result = await response.json();
+    if (response.ok) {
+        window.location.href = "/";
+    } else {
+        document.getElementById("message").textContent = result.error;
+    }
+});
+</script>
+<script>
+document.getElementById("login-show-password").addEventListener("change", (event) => {
+    document.getElementById("login-password").type =
+        event.target.checked ? "text" : "password";
+});
+</script>
+{% endblock %}
