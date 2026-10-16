@@ -110,12 +110,16 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app.py jwt_filter.py ./
+COPY templates ./templates
+COPY static ./static
 
 ENV PORT=5001
 EXPOSE 5001
 
 CMD ["python", "app.py"]
 ```
+
+If your API has a browser interface, keep its Jinja files in a `templates/` directory and its CSS, JavaScript, and image files in a `static/` directory. The `COPY` lines above make those directories available to Flask inside the container. Add any other application files or directories your API imports or serves to the Dockerfile as well.
 
 Build and run your API:
 
