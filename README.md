@@ -1,6 +1,24 @@
 # Airport Management Authentication API
 
-This service provides registration, login, logout, and JWT cookie authentication for Flask APIs.
+This service provides registration, login, logout, and JWT cookie authentication for Flask APIs. All APIs should use the same external database system; containers should not create a separate database for each API.
+
+## Shared external database
+
+The service uses SQLAlchemy and connects through the `DATABASE_URL` environment variable. For PostgreSQL, use a URL such as:
+
+```text
+postgresql+psycopg://username:password@database-host:5432/airport_management
+```
+
+Set the same database URL for this service and any other API that needs to use the shared database:
+
+```bash
+export DATABASE_URL="postgresql+psycopg://username:password@database-host:5432/airport_management"
+```
+
+The database must be reachable from the containers. Do not use `localhost` in `DATABASE_URL` when the database is running in another container or on another machine; use the database service name or external host instead.
+
+The authentication service creates its `users` table when it starts. For production, use a migration tool such as Alembic when changing an existing shared schema. Other APIs should add their own tables to the same database rather than creating another database.
 
 ## Authenticate another Flask API
 
@@ -131,6 +149,7 @@ docker run --rm \
   -p 5001:5001 \
   -e PORT=5001 \
   -e JWT_SECRET_KEY="$JWT_SECRET_KEY" \
+  -e DATABASE_URL="$DATABASE_URL" \
   -e JWT_COOKIE_SECURE=false \
   -e JWT_COOKIE_SAMESITE=Lax \
   -e JWT_COOKIE_CSRF_PROTECT=true \
@@ -148,17 +167,14 @@ docker build -t airport-auth .
 Run it on host port `5002`:
 
 ```bash
-mkdir -p data
-
 docker run --rm \
   --name airport-auth \
   -p 5002:5000 \
   -e JWT_SECRET_KEY="$JWT_SECRET_KEY" \
-  -e DATABASE_PATH=/app/data/users.db \
+  -e DATABASE_URL="$DATABASE_URL" \
   -e JWT_COOKIE_SECURE=false \
   -e JWT_COOKIE_SAMESITE=Lax \
   -e JWT_COOKIE_CSRF_PROTECT=true \
-  -v "$(pwd)/data:/app/data" \
   airport-auth
 ```
 

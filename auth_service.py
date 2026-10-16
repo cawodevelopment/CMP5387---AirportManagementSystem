@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import os
-from pathlib import Path
+from datetime import datetime
 from typing import Any, TypeAlias
 
 import bcrypt
@@ -29,13 +29,13 @@ class User(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     first_name: Mapped[str] = mapped_column(String(255), nullable=False)
     last_name: Mapped[str] = mapped_column(String(255), nullable=False)
-    email: Mapped[str] = mapped_column(String(255, collation="NOCASE"), unique=True, nullable=False)
+    email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
     role: Mapped[str] = mapped_column(
         String(20), default="USER", server_default=text("'USER'"), nullable=False
     )
-    created_at: Mapped[str] = mapped_column(
-        String(40), server_default=func.current_timestamp(), nullable=False
+    created_at: Mapped[datetime] = mapped_column(
+        server_default=func.current_timestamp(), nullable=False
     )
 
 
@@ -46,13 +46,8 @@ def _required_env(name: str) -> str:
     return value
 
 
-def _database_path() -> Path:
-    return Path(os.getenv("DATABASE_PATH", "users.db")).expanduser()
-
-
-def _create_session_factory(database_path: Path) -> sessionmaker[Session]:
-    database_path.parent.mkdir(parents=True, exist_ok=True)
-    engine = create_engine(f"sqlite:///{database_path}")
+def _create_session_factory() -> sessionmaker[Session]:
+    engine = create_engine(_required_env("DATABASE_URL"))
     Base.metadata.create_all(engine)
     return sessionmaker(bind=engine, expire_on_commit=False)
 
@@ -64,7 +59,7 @@ def _json_user(user: User) -> dict[str, Any]:
         "last_name": user.last_name,
         "email": user.email,
         "role": user.role,
-        "created_at": user.created_at,
+        "created_at": user.created_at.isoformat(),
     }
 
 
@@ -88,8 +83,7 @@ app.config.update(
         },
     },
 )
-database_path = _database_path()
-session_factory = _create_session_factory(database_path)
+session_factory = _create_session_factory()
 JWTManager(app)
 Swagger(app)
 
