@@ -158,35 +158,27 @@ docker run --rm \
   my-flask-api
 ```
 
-## Run the authentication service
+## Run the authentication service behind Nginx
 
-Build the image:
+The Compose setup runs the authentication API on the internal container network.
+Nginx is the only service exposed to the host and forwards requests to the API.
 
-```bash
-docker build -t airport-auth .
-```
-
-Run it on host port `5002`:
+Start the API, Nginx reverse proxy, and PostgreSQL:
 
 ```bash
-docker run --rm \
-  --name airport-auth \
-  -p 5002:5000 \
-  -e JWT_SECRET_KEY="$JWT_SECRET_KEY" \
-  -e DATABASE_URL="$DATABASE_URL" \
-  -e JWT_COOKIE_SECURE=false \
-  -e JWT_COOKIE_SAMESITE=Lax \
-  -e JWT_COOKIE_CSRF_PROTECT=true \
-  airport-auth
+export NGINX_PORT=8080  # Choose the host port for Nginx.
+docker compose up --build
 ```
 
-The authentication service is available at `http://localhost:5002`.
+The proxy is available at `http://localhost:${NGINX_PORT}`. `NGINX_PORT` must
+be set; the API container is not directly accessible from the host.
 
-Register or log in first:
+Register or log in through the proxy:
 
-```text
-POST http://localhost:5002/register
-POST http://localhost:5002/login
+```bash
+POST http://localhost:8080/register
+POST http://localhost:8080/login
 ```
 
-Then call your protected API. When using Postman, keep cookie storage enabled so the `access_token_cookie` is sent to the other API.
+Keep cookie storage enabled in Postman or your browser so the authentication
+cookies are sent through the proxy to the API.
